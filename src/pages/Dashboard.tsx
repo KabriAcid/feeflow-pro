@@ -1,5 +1,9 @@
 import { MainLayout } from '@/components/layout/MainLayout';
 import { MetricCard } from '@/components/dashboard/MetricCard';
+import { motion } from 'framer-motion';
+import { Button } from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
+import { formatCurrency } from '@/lib/formatters';
 import { 
   BanknotesIcon, 
   ClockIcon, 
@@ -8,9 +12,7 @@ import {
   PlusIcon,
   EyeIcon
 } from '@heroicons/react/24/outline';
-import { motion } from 'framer-motion';
-import { Button } from '@/components/ui/button';
-import { Card } from '@/components/ui/card';
+import { BarChart, Bar, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 
 export default function Dashboard() {
   // Mock data
@@ -39,6 +41,29 @@ export default function Dashboard() {
       trend: { value: 8, isPositive: false },
       icon: ExclamationCircleIcon,
     },
+  ];
+
+  const collectionByClass = [
+    { class: 'JSS 1', collected: 2100000, expected: 2800000 },
+    { class: 'JSS 2', collected: 1950000, expected: 2600000 },
+    { class: 'JSS 3', collected: 1800000, expected: 2400000 },
+    { class: 'SSS 1', collected: 2200000, expected: 2900000 },
+    { class: 'SSS 2', collected: 1850000, expected: 2500000 },
+    { class: 'SSS 3', collected: 1700000, expected: 2300000 },
+  ];
+
+  const monthlyTrend = [
+    { month: 'Sep', amount: 8500000 },
+    { month: 'Oct', amount: 9200000 },
+    { month: 'Nov', amount: 9800000 },
+    { month: 'Dec', amount: 10100000 },
+    { month: 'Jan', amount: 10600000 },
+  ];
+
+  const paymentMethods = [
+    { name: 'Bank Transfer', value: 6500000, color: '#1F0318' },
+    { name: 'Cash', value: 2800000, color: '#FBE2CD' },
+    { name: 'Mobile Money', value: 1300000, color: '#F8F4F1' },
   ];
 
   const recentActivity = [
@@ -96,12 +121,113 @@ export default function Dashboard() {
           </div>
         </motion.div>
 
+        {/* Charts Section */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.5 }}
+          >
+            <Card className="p-6">
+              <h3 className="text-lg font-semibold text-foreground mb-4">Collection by Class</h3>
+              <ResponsiveContainer width="100%" height={280}>
+                <BarChart data={collectionByClass}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                  <XAxis dataKey="class" stroke="hsl(var(--muted-foreground))" />
+                  <YAxis stroke="hsl(var(--muted-foreground))" />
+                  <Tooltip 
+                    contentStyle={{ 
+                      backgroundColor: 'hsl(var(--card))',
+                      border: '1px solid hsl(var(--border))',
+                      borderRadius: '8px'
+                    }}
+                    formatter={(value: number) => formatCurrency(value)}
+                  />
+                  <Bar dataKey="collected" fill="hsl(var(--primary))" name="Collected" radius={[8, 8, 0, 0]} />
+                  <Bar dataKey="expected" fill="hsl(var(--muted))" name="Expected" radius={[8, 8, 0, 0]} />
+                </BarChart>
+              </ResponsiveContainer>
+            </Card>
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.6 }}
+          >
+            <Card className="p-6">
+              <h3 className="text-lg font-semibold text-foreground mb-4">Monthly Collection Trend</h3>
+              <ResponsiveContainer width="100%" height={280}>
+                <LineChart data={monthlyTrend}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                  <XAxis dataKey="month" stroke="hsl(var(--muted-foreground))" />
+                  <YAxis stroke="hsl(var(--muted-foreground))" />
+                  <Tooltip 
+                    contentStyle={{ 
+                      backgroundColor: 'hsl(var(--card))',
+                      border: '1px solid hsl(var(--border))',
+                      borderRadius: '8px'
+                    }}
+                    formatter={(value: number) => formatCurrency(value)}
+                  />
+                  <Line 
+                    type="monotone" 
+                    dataKey="amount" 
+                    stroke="hsl(var(--primary))" 
+                    strokeWidth={3}
+                    dot={{ fill: 'hsl(var(--primary))', r: 5 }}
+                    name="Collections"
+                  />
+                </LineChart>
+              </ResponsiveContainer>
+            </Card>
+          </motion.div>
+        </div>
+
+        {/* Payment Methods Chart */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.7 }}
+          className="mb-8"
+        >
+          <Card className="p-6">
+            <h3 className="text-lg font-semibold text-foreground mb-4">Payment Methods Distribution</h3>
+            <ResponsiveContainer width="100%" height={280}>
+              <PieChart>
+                <Pie
+                  data={paymentMethods}
+                  cx="50%"
+                  cy="50%"
+                  labelLine={false}
+                  label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
+                  outerRadius={100}
+                  fill="#8884d8"
+                  dataKey="value"
+                >
+                  {paymentMethods.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={entry.color} />
+                  ))}
+                </Pie>
+                <Tooltip 
+                  contentStyle={{ 
+                    backgroundColor: 'hsl(var(--card))',
+                    border: '1px solid hsl(var(--border))',
+                    borderRadius: '8px'
+                  }}
+                  formatter={(value: number) => formatCurrency(value)} 
+                />
+              </PieChart>
+            </ResponsiveContainer>
+          </Card>
+        </motion.div>
+
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Recent Activity */}
           <motion.div
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 0.5 }}
+            transition={{ delay: 0.8 }}
             className="lg:col-span-2"
           >
             <Card className="p-6">
@@ -137,7 +263,7 @@ export default function Dashboard() {
           <motion.div
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 0.6 }}
+            transition={{ delay: 0.9 }}
           >
             <Card className="p-6">
               <h3 className="text-lg font-semibold text-foreground mb-4">Quick Actions</h3>

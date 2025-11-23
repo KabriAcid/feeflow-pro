@@ -4,8 +4,9 @@ import {
   MagnifyingGlassIcon, 
   FunnelIcon,
   PlusIcon,
-  TableCellsIcon,
-  Squares2X2Icon
+  EyeIcon,
+  PhoneIcon,
+  CurrencyDollarIcon
 } from '@heroicons/react/24/outline';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -13,9 +14,12 @@ import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { formatCurrency, getInitials, getAvatarColor } from '@/lib/formatters';
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { AddStudentModal } from '@/components/modals/AddStudentModal';
 
 export default function Students() {
-  const [viewMode, setViewMode] = useState<'table' | 'grid'>('grid');
+  const navigate = useNavigate();
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   
   // Mock data
   const kpis = [
@@ -87,6 +91,10 @@ export default function Students() {
     return 'bg-gray-100 text-gray-700';
   };
 
+  const handleViewStudent = (id: number) => {
+    navigate(`/students/${id}`);
+  };
+
   return (
     <MainLayout>
       <div className="p-6 lg:p-8 max-w-7xl mx-auto">
@@ -101,7 +109,10 @@ export default function Students() {
               <h1 className="text-3xl font-bold text-foreground mb-2">Students</h1>
               <p className="text-muted-foreground">Manage student records and payments</p>
             </div>
-            <Button className="bg-primary hover:bg-primary/90 gap-2">
+            <Button 
+              className="bg-primary hover:bg-primary/90 gap-2"
+              onClick={() => setIsAddModalOpen(true)}
+            >
               <PlusIcon className="h-5 w-5" />
               Add Student
             </Button>
@@ -135,142 +146,101 @@ export default function Students() {
                 className="pl-10 bg-input-bg"
               />
             </div>
-            <div className="flex gap-2">
-              <Button variant="outline" className="gap-2">
-                <FunnelIcon className="h-5 w-5" />
-                Filters
-              </Button>
-              <div className="flex border border-border rounded-lg overflow-hidden">
-                <Button
-                  variant={viewMode === 'grid' ? 'default' : 'ghost'}
-                  size="icon"
-                  onClick={() => setViewMode('grid')}
-                  className="rounded-none"
-                >
-                  <Squares2X2Icon className="h-5 w-5" />
-                </Button>
-                <Button
-                  variant={viewMode === 'table' ? 'default' : 'ghost'}
-                  size="icon"
-                  onClick={() => setViewMode('table')}
-                  className="rounded-none"
-                >
-                  <TableCellsIcon className="h-5 w-5" />
-                </Button>
-              </div>
-            </div>
+            <Button variant="outline" className="gap-2">
+              <FunnelIcon className="h-5 w-5" />
+              Filters
+            </Button>
           </div>
         </motion.div>
 
-        {/* Students Grid */}
-        {viewMode === 'grid' ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {students.map((student, index) => (
-              <motion.div
-                key={student.id}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.1 }}
-              >
-                <Card className="p-6 hover-lift">
-                  <div className="flex items-start justify-between mb-4">
-                    <div className="flex items-center gap-3">
-                      <div className={`w-12 h-12 rounded-full flex items-center justify-center font-semibold ${getAvatarColor(student.name)}`}>
-                        {getInitials(student.name)}
+        {/* Students Table */}
+        <Card className="overflow-hidden">
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead className="bg-muted/50">
+                <tr>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">Student</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">Admission No</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">Class</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">Balance</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">Status</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">Guardian</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">Actions</th>
+                </tr>
+              </thead>
+              <tbody className="bg-card divide-y divide-border">
+                {students.map((student, index) => (
+                  <motion.tr 
+                    key={student.id}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: index * 0.05 }}
+                    className="hover:bg-hover-bg transition-colors"
+                  >
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="flex items-center gap-3">
+                        <div className={`w-10 h-10 rounded-full flex items-center justify-center font-semibold text-sm ${getAvatarColor(student.name)}`}>
+                          {getInitials(student.name)}
+                        </div>
+                        <span className="font-medium text-foreground">{student.name}</span>
                       </div>
-                      <div>
-                        <h3 className="font-semibold text-foreground">{student.name}</h3>
-                        <p className="text-sm text-muted-foreground">{student.admissionNo}</p>
-                      </div>
-                    </div>
-                  </div>
-                  
-                  <div className="space-y-3">
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm text-muted-foreground">Class</span>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-muted-foreground">{student.admissionNo}</td>
+                    <td className="px-6 py-4 whitespace-nowrap">
                       <span className={`text-xs font-medium px-2 py-1 rounded-full ${getClassColor(student.class)}`}>
                         {student.class}
                       </span>
-                    </div>
-                    
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm text-muted-foreground">Category</span>
-                      <span className="text-sm font-medium">{student.category}</span>
-                    </div>
-                    
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm text-muted-foreground">Balance</span>
-                      <span className={`text-sm font-semibold ${student.balance < 0 ? 'text-destructive' : 'text-success'}`}>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <span className={`font-semibold ${student.balance < 0 ? 'text-destructive' : 'text-success'}`}>
                         {formatCurrency(Math.abs(student.balance))}
                       </span>
-                    </div>
-                    
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm text-muted-foreground">Status</span>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
                       {getStatusBadge(student.status)}
-                    </div>
-                    
-                    <div className="pt-3 border-t border-border">
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
                       <a href={`tel:${student.guardianPhone}`} className="text-sm text-primary hover:underline">
                         {student.guardianPhone}
                       </a>
-                    </div>
-                  </div>
-                </Card>
-              </motion.div>
-            ))}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="flex items-center gap-2">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => handleViewStudent(student.id)}
+                          title="View Details"
+                        >
+                          <EyeIcon className="h-5 w-5" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          asChild
+                          title="Call Guardian"
+                        >
+                          <a href={`tel:${student.guardianPhone}`}>
+                            <PhoneIcon className="h-5 w-5" />
+                          </a>
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          title="Record Payment"
+                        >
+                          <CurrencyDollarIcon className="h-5 w-5" />
+                        </Button>
+                      </div>
+                    </td>
+                  </motion.tr>
+                ))}
+              </tbody>
+            </table>
           </div>
-        ) : (
-          <Card className="overflow-hidden">
-            <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead className="bg-muted/50">
-                  <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">Student</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">Admission No</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">Class</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">Balance</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">Status</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">Guardian</th>
-                  </tr>
-                </thead>
-                <tbody className="bg-card divide-y divide-border">
-                  {students.map((student) => (
-                    <tr key={student.id} className="hover:bg-hover-bg transition-colors">
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="flex items-center gap-3">
-                          <div className={`w-10 h-10 rounded-full flex items-center justify-center font-semibold text-sm ${getAvatarColor(student.name)}`}>
-                            {getInitials(student.name)}
-                          </div>
-                          <span className="font-medium text-foreground">{student.name}</span>
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-muted-foreground">{student.admissionNo}</td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <span className={`text-xs font-medium px-2 py-1 rounded-full ${getClassColor(student.class)}`}>
-                          {student.class}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <span className={`font-semibold ${student.balance < 0 ? 'text-destructive' : 'text-success'}`}>
-                          {formatCurrency(Math.abs(student.balance))}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        {getStatusBadge(student.status)}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <a href={`tel:${student.guardianPhone}`} className="text-sm text-primary hover:underline">
-                          {student.guardianPhone}
-                        </a>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </Card>
-        )}
+        </Card>
+
+        <AddStudentModal open={isAddModalOpen} onOpenChange={setIsAddModalOpen} />
       </div>
     </MainLayout>
   );
