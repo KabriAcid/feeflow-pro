@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import Dashboard from "./pages/Dashboard";
 import Students from "./pages/Students";
+import StudentDetails from "./pages/StudentDetails";
 import Payments from "./pages/Payments";
 import MobileNav from "./pages/MobileNav";
 import NotFound from "./pages/NotFound";
@@ -18,11 +19,12 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <Routes>
-          <Route path="/" element={<Navigate to="/dashboard" replace />} />
-          <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/students" element={<Students />} />
-          <Route path="/payments" element={<Payments />} />
-          <Route path="/nav" element={<MobileNav />} />
+        <Route path="/" element={<Navigate to="/dashboard" replace />} />
+        <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/students" element={<Students />} />
+        <Route path="/students/:id" element={<StudentDetails />} />
+        <Route path="/payments" element={<Payments />} />
+        <Route path="/nav" element={<MobileNav />} />
           <Route path="/debtors" element={<Dashboard />} />
           <Route path="/fee-structure" element={<Dashboard />} />
           <Route path="/reports" element={<Dashboard />} />

@@ -16,7 +16,7 @@ All colors MUST be HSL.
     /* Surface Colors */
     --background: 31 15% 96%;        /* Body bg */
     --foreground: 310 80% 6%;        /* Primary text */
-    --card: 240 20% 96%;             /* #e7ebf9 Card background */
+    --card: 0 0% 100%;               /* Pure white for cards */
     --card-foreground: 310 80% 6%;
     
     /* Input & Form Elements */
